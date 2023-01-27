@@ -2,11 +2,13 @@ import passport from "passport";
 import passportLocal from "passport-local";
 import passportJwt from "passport-jwt";
 
+import { IOwnUser } from "../interfaces";
+
 const localStrategy = passportLocal.Strategy;
 const JWTStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
 
-const currentUser = {
+const currentUser: IOwnUser = {
   id: 1,
   email: "test@test.com",
   password: "12345",
@@ -20,7 +22,7 @@ passport.use(
       passwordField: "password",
     },
     (email: string, password: string, done) => {
-      const user = currentUser;
+      const user: IOwnUser = currentUser;
       try {
         if (email === "test@test.com" && password === "12345") {
           return done(null, user, { message: "Logged in Successfully" });
@@ -28,7 +30,6 @@ passport.use(
           return done(null, false, { message: "User not found" });
         }
       } catch (error) {
-        console.log(error);
         return done(error);
       }
     }
@@ -38,7 +39,7 @@ passport.use(
 passport.use(
   new JWTStrategy(
     {
-      secretOrKey: "key",
+      secretOrKey: process.env.SECRET_TOKEN,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     },
     (token, done) => {

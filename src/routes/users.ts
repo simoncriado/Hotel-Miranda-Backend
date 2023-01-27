@@ -11,21 +11,21 @@ import {
 const usersRouter = express.Router();
 
 // GET users (Read method)
-usersRouter.get("/users", getUsers);
+usersRouter.get("/", getUsers);
 
 // GET single user (Read method)
-usersRouter.get("/users/:id", getUser);
+usersRouter.get("/:id", getUser);
 
 // POST a new user (Create method)
 usersRouter.post("/newUser", postUser);
 
 // PUT a user (Update method)
-usersRouter.put("/users/:id", putUser);
+usersRouter.put("/editUser/:id", putUser);
 
 // PUT your own user (Update method)
 usersRouter.put("/editOwnUser", putOwnUser);
 
 // DELETE single user (Delete method)
-usersRouter.delete("/users/:id", deleteUser);
+usersRouter.delete("/:id", deleteUser);
 
 export default usersRouter;

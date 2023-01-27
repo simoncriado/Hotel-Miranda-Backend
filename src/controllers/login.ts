@@ -1,19 +1,26 @@
+import { Request, Response, NextFunction } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 
-export const postLogin = (req, res, next) => {
+export const postLogin = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("login", (err, user, info) => {
     try {
       if (!user || err) {
-        return next(err);
+        return res.status(401).send("Wrong credentials!");
       }
-      req.login(user, { session: false }, (error) =>
-        error
-          ? next(error)
-          : res.json(
-              jwt.sign({ user: { id: user.id, email: user.email } }, "key")
+
+      req.login(user, { session: false }, (error) => {
+        if (error) {
+          return res.status(401);
+        } else {
+          return res.json(
+            jwt.sign(
+              { user: { id: user.id, email: user.email } },
+              process.env.SECRET_TOKEN
             )
-      );
+          );
+        }
+      });
     } catch (error) {
       return next(error);
     }

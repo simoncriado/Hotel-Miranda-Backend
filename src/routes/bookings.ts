@@ -6,6 +6,7 @@ import {
   deleteBooking,
   putBooking,
 } from "../controllers/bookings";
+
 const bookingsRouter = express.Router();
 
 // GET bookings (Read method)
@@ -15,10 +16,10 @@ bookingsRouter.get("/", getBookings);
 bookingsRouter.get("/:bookingId", getBooking);
 
 // POST a new booking (Create method)
-bookingsRouter.post("/", postBooking);
+bookingsRouter.post("/newBooking", postBooking);
 
 // PUT a booking (Update method)
-bookingsRouter.put("/:bookingId", putBooking);
+bookingsRouter.put("/editBooking/:bookingId", putBooking);
 
 // DELETE single booking (Delete method)
 bookingsRouter.delete("/:bookingId", deleteBooking);
