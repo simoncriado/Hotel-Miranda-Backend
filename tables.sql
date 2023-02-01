@@ -11,11 +11,10 @@ orderDate VARCHAR(100) NOT NULL,
 checkIn VARCHAR(100) NOT NULL, 
 checkOut VARCHAR(100) NOT NULL, 
 specialRequest VARCHAR(500), 
+roomID INT NOT NULL,
 roomType VARCHAR(50) NOT NULL, 
 roomNumber SMALLINT NOT NULL,
 roomRate INT NOT NULL,
-roomFacilities TEXT[],
-roomPhotos TEXT[],
 status varchar(45) NOT NULL, 
 PRIMARY KEY (id));
 

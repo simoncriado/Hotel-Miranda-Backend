@@ -12,10 +12,10 @@ const users = [];
 
 async function run() {
   await connection.connect();
-  await insertFacilities();
+  //   await insertFacilities();
   await insertRoomFacilitiesRel();
-  await insertRooms(20);
-  //   await insertBookings(20);
+  //   await insertRooms(20);
+  await insertBookings(20);
   // await insertUsers(20);
   await connection.end();
 }
@@ -61,20 +61,30 @@ async function insertFacilities(): Promise<void> {
 }
 
 async function insertRoomFacilitiesRel(): Promise<void> {
-  // THIS LINE IS ONLY FOR TESTING PURPOSES. IT DELETES THE PREVIOUS ROOMFACILITIESREL STORED IN THE TABLE SO THAT WE DO NOT GET TOO MANY ROOMFACILITIESREL
+  //   THIS LINE IS ONLY FOR TESTING PURPOSES. IT DELETES THE PREVIOUS ROOMFACILITIESREL STORED IN THE TABLE SO THAT WE DO NOT GET TOO MANY ROOMFACILITIESREL
   await dbQuery("DELETE FROM room_facilities_rel", "");
 
-  const rooms: number = 20;
+  const rooms = await dbQuery("SELECT * FROM rooms;", "");
+  const roomsArray = JSON.parse(JSON.stringify(rooms));
 
-  for (let i = 0; i < rooms; i++) {
-    for (let j = 0; j < 4; j++) {
-      const facilityID: number = Math.round(Math.random() * 14 - 1);
-      await dbQuery("INSERT INTO room_facilities_rel SET ?", {
-        facility_id: facilityID,
-        room_id: i + 1,
-      });
-    }
+  const facilities = await dbQuery("SELECT * FROM roomFacilities;", "");
+  const arrayFacilitiesID = JSON.parse(JSON.stringify(facilities)).map(
+    (f) => f.id
+  );
+
+  const roomIDFacilityID = [];
+  for (let i = 0; i < roomsArray.length; i++) {
+    const randomFacilities = faker.helpers.arrayElements(arrayFacilitiesID, 4);
+    randomFacilities.map((f) =>
+      roomIDFacilityID.push({ facility_id: f, room_id: roomsArray[i].id })
+    );
   }
+  roomIDFacilityID.map(async (pair) => {
+    await dbQuery("INSERT INTO room_facilities_rel SET ?", {
+      facility_id: pair.facility_id,
+      room_id: pair.room_id,
+    });
+  });
 }
 
 async function insertUsers(number: number): Promise<void> {
@@ -92,7 +102,7 @@ async function insertBookings(number: number): Promise<void> {
 
   for (let i = 0; i < number; i++) {
     const room = rooms[Math.round(Math.random() * rooms.length - 1)];
-    const booking = await setRandomBooking(room);
+    const booking = await setRandomBooking();
     await bookings.push(booking);
     await dbQuery("INSERT INTO bookings SET ?", booking);
   }
@@ -182,10 +192,18 @@ async function setRandomUser() {
   };
 }
 
-async function setRandomBooking(room) {
+async function setRandomBooking() {
   const orderDate = faker.date.between("2022-01-01", "2023-12-12");
   const checkIn = faker.date.between(orderDate, "2023-12-12");
   const checkOut = faker.date.between(checkIn, "2023-12-12");
+
+  const rooms = await dbQuery("SELECT * FROM rooms;", "");
+  const roomsArray = JSON.parse(JSON.stringify(rooms));
+  const randomNumber: number = Math.round(
+    Math.random() * roomsArray.length - 1
+  );
+  const randomRoom = roomsArray[randomNumber];
+
   return await {
     bookingID: faker.datatype.number({ min: 1, max: 99999 }),
     userName: faker.name.fullName(),
@@ -200,23 +218,18 @@ async function setRandomBooking(room) {
       "We need an extra bed in the room please. My cousin is finally joining our trip",
       "Silent part of the hotel please. I cannot sleep if there is any noise in the room",
     ]),
-    // roomType: faker.helpers.arrayElement([
-    //   "Single Bed",
-    //   "Double Bed",
-    //   "Double Superior",
-    //   "Suite",
-    // ]),
-    roomType: room.bed_type,
-    roomNumber: room.room_number,
-    roomRate: room.room_rate,
-    roomFacilities: room.room_facilities,
-    roomPhotos: [
-      room.photo,
-      room.photoTwo,
-      room.photoThree,
-      room.photoFour,
-      room.photoFive,
-    ],
+    roomID: randomRoom.id,
+    roomType: randomRoom.bed_type,
+    roomNumber: randomRoom.room_number,
+    roomRate: randomRoom.room_rate,
+    // roomFacilities: randomRoom.room_facilities,
+    // roomPhotos: [
+    //   randomRoom.photo,
+    //   randomRoom.photoTwo,
+    //   randomRoom.photoThree,
+    //   randomRoom.photoFour,
+    //   randomRoom.photoFive,
+    // ],
     status: faker.helpers.arrayElement([
       "Check In",
       "Check Out",

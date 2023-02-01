@@ -1,35 +1,44 @@
+import { dbQuery } from "../db/connection";
 import { IBooking } from "../interfaces";
 
-export const getBookings = (req, res) => {
-  const bookings: IBooking[] = [
-    {
-      id: 1,
-      bookingID: 135478,
-      userName: "Roger Waters",
-      userPicture:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
-      orderDate: "12/06/2022, 10:00:00",
-      checkIn: "2022-11-04",
-      checkOut: "2022-12-01",
-      specialRequest: "",
-      roomType: "Single Bed",
-      status: "Check Out",
-    },
-    {
-      id: 2,
-      bookingID: 3460,
-      userName: "Lilly Potter",
-      userPicture:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
-      orderDate: "12/10/2022, 10:00:00",
-      checkIn: "2022-11-04",
-      checkOut: "2022-12-01",
-      specialRequest: "",
-      roomType: "Suite",
-      status: "In Progress",
-    },
-  ];
-  res.status(200).json(bookings);
+export const getBookings = async (req, res, next) => {
+  // Getting all bookings and making them an array
+  const bookingsQuery = await dbQuery("SELECT * FROM bookings;", null);
+  const bookingsArray = JSON.parse(JSON.stringify(bookingsQuery)).map((b) => b);
+  const bookingsWithRoomData = [];
+  // Looping throught all bookings
+  for (let i = 0; i < bookingsArray.length; i++) {
+    // Getting the room which is associated to that booking and extracting the room photos and room facilities. Then adding them to each booking object
+    const associatedRoom = await dbQuery(
+      "SELECT * FROM rooms WHERE id = ?;",
+      bookingsArray[i].roomID
+    );
+    const parsedRoom = JSON.parse(JSON.stringify(associatedRoom));
+    const photosArray = [
+      parsedRoom[0].photo,
+      parsedRoom[0].photoTwo,
+      parsedRoom[0].photoThree,
+      parsedRoom[0].photoFour,
+      parsedRoom[0].photoFive,
+    ];
+    const facilitiesQuery = await dbQuery(
+      "select facility from room_facilities_rel, roomFacilities where room_id = ? and roomFacilities.id = room_facilities_rel.facility_id",
+      [parsedRoom[0].id]
+    );
+    const facilitiesArray = JSON.parse(JSON.stringify(facilitiesQuery)).map(
+      (f) => f.facility
+    );
+    bookingsArray[i]["roomFacilities"] = facilitiesArray;
+    bookingsArray[i]["roomPhotos"] = photosArray;
+    bookingsWithRoomData.push(bookingsArray[i]);
+  }
+  try {
+    if (JSON.parse(JSON.stringify(bookingsArray)).length === 0)
+      return res.status(400).json({ result: "Error fetching the bookings" });
+    res.status(200).json(bookingsWithRoomData);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const getBooking = (req, res) => {
