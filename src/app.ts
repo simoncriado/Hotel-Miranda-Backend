@@ -7,7 +7,7 @@ import loginRouter from "./routes/login";
 import bookingsRouter from "./routes/bookings";
 import roomsRouter from "./routes/rooms";
 import usersRouter from "./routes/users";
-import contactRouter from "./routes/contact";
+import reviewsRouter from "./routes/contact";
 
 import("./auth/auth");
 
@@ -38,9 +38,9 @@ app.use(
   usersRouter
 );
 app.use(
-  "/contact",
+  "/reviews",
   passport.authenticate("jwt", { session: false }),
-  contactRouter
+  reviewsRouter
 );
 
 app.listen(3000, () => {

@@ -1,12 +1,14 @@
 export interface IBooking {
-  id: number;
   bookingID: number;
   userName: string;
   userPicture: string;
-  orderDate: string;
-  checkIn: string;
-  checkOut: string;
+  orderDate: Date;
+  checkIn: Date;
+  checkOut: Date;
   specialRequest: string;
+  roomID: number;
   roomType: string;
+  roomNumber: number;
+  roomRate: number;
   status: string;
 }

@@ -67,3 +67,16 @@ CREATE TABLE room_facilities_rel (
     FOREIGN KEY (room_id) references rooms(id)
 );
 
+-- Create table reviews
+CREATE TABLE reviews (
+id INT NOT NULL AUTO_INCREMENT, 
+date VARCHAR(100) NOT NULL, 
+name VARCHAR(255) NOT NULL, 
+email VARCHAR(255) NOT NULL, 
+phone VARCHAR(50),
+comment VARCHAR(500) NOT NULL,
+stars TINYINT NOT NULL,
+archived TINYINT NOT NULL,
+PRIMARY KEY (id)
+);
+

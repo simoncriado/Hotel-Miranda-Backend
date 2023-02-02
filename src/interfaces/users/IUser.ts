@@ -5,7 +5,7 @@ export interface IUser {
   position: string;
   email: string;
   phone: string;
-  date: string;
+  date: Date;
   description: string;
   state: string;
   pass: string;
