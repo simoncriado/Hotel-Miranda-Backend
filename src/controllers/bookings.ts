@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { dbQuery } from "../db/connection";
 import { IBooking, IRooms } from "../interfaces";
+import { faker } from "@faker-js/faker";
 
 export const getBookings = async (
   req: Request,
@@ -94,19 +95,68 @@ export const getBooking = async (
   }
 };
 
-export const postBooking = (
+export const postBooking = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const newBooking: string = "Creating new booking";
-  res.status(200).json(newBooking);
+  // Getting all rooms where the bed type is equal to the bed type the user selected. Then picking a random room from that array
+  const rooms: IRooms | {} = await dbQuery(
+    "SELECT * FROM rooms WHERE bed_type = ?;",
+    req.body.bed_type
+  );
+  const roomsArray: IRooms[] = JSON.parse(JSON.stringify(rooms));
+  const randomRoom: IRooms = faker.helpers.arrayElement(roomsArray);
+
+  const newBooking = {
+    ...req.body,
+    bookingID: faker.datatype.number({ min: 1, max: 999999 }),
+    // GOAL IS TO GET TODAYS DATE... NOT SURE IF THIS IS WORKING
+    orderDate: faker.date.between("", ""),
+    roomID: randomRoom.id,
+    roomType: randomRoom.bed_type,
+    roomNumber: randomRoom.room_number,
+    roomRate: randomRoom.room_rate,
+  };
+
+  try {
+    await dbQuery("INSERT INTO bookings SET ?", newBooking);
+
+    res.status(201).json({ result: "Booking added successfully" });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const putBooking = (req: Request, res: Response, next: NextFunction) => {
-  const { id } = req.params;
-  const singleBooking: string = `Editing the booking with ID ${id}`;
-  res.status(200).json(singleBooking);
+export const putBooking = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const bookingQuery: IBooking[] | {} = await dbQuery(
+    "SELECT * FROM bookings WHERE id = ?;",
+    [parseInt(req.params.bookingId)]
+  );
+  const parsedBooking: IBooking[] = JSON.parse(JSON.stringify(bookingQuery));
+  const editedBooking: IBooking[] | {} = {
+    ...parsedBooking,
+    userName: req.body.userName,
+    userPicture: req.body.userPicture,
+    checkIn: req.body.checkIn,
+    checkOut: req.body.checkOut,
+    specialRequest: req.body.specialRequest,
+    bed_type: req.body.bed_type,
+    status: req.body.status,
+  };
+  try {
+    await dbQuery("UPDATE bookings SET ? WHERE id = ?", [
+      editedBooking,
+      parseInt(req.params.bookingId),
+    ]);
+    res.status(202).json({ result: "Booking edited successfully" });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const deleteBooking = async (
