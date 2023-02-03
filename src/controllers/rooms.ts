@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { dbQuery } from "../db/connection";
 import { IRooms } from "../interfaces";
+import { faker } from "@faker-js/faker";
 
 export const getRooms = async (
   req: Request,
@@ -63,12 +64,102 @@ export const getRoom = async (
   }
 };
 
-export const postRoom = (req: Request, res: Response, next: NextFunction) => {
-  console.log("Creating a new Room");
+export const postRoom = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // Creating the facilities associated to the room we are creating
+  const roomIDS: {} = await dbQuery("SELECT id FROM rooms;", "");
+  const arrayRoomsIDS: number | any = JSON.parse(JSON.stringify(roomIDS)).map(
+    (id) => id.id
+  );
+  const facilities: {} = await dbQuery("SELECT * FROM roomFacilities;", "");
+  const arrayFacilitiesID: number | any = JSON.parse(
+    JSON.stringify(facilities)
+  ).map((f) => f.id);
+
+  const roomIDFacilityID: any = [];
+  const randomFacilities: any = faker.helpers.arrayElements(
+    arrayFacilitiesID,
+    4
+  );
+  randomFacilities.map((f) =>
+    roomIDFacilityID.push({
+      facility_id: f,
+      room_id: Math.max(...arrayRoomsIDS) + 1,
+    })
+  );
+
+  const newRoom: IRooms[] | {} = {
+    room_number: req.body.room_number,
+    photo: req.body.photo,
+    photoTwo: req.body.photoTwo,
+    photoThree: req.body.photoThree,
+    photoFour: req.body.photoFour,
+    photoFive: req.body.photoFive,
+    description: req.body.description,
+    discountPercent: req.body.discountPercent,
+    discount: req.body.discount,
+    cancellationPolicy: req.body.cancellationPolicy,
+    bed_type: req.body.bed_type,
+    room_rate: req.body.room_rate,
+    room_offer: req.body.room_offer,
+    room_status: req.body.room_status,
+  };
+
+  try {
+    // Creating the room first and once it exists in the data base, we add the facilities associated to that new room
+    await dbQuery("INSERT INTO rooms SET ?", newRoom);
+    roomIDFacilityID.map(async (pair) => {
+      await dbQuery("INSERT INTO room_facilities_rel SET ?", {
+        facility_id: pair.facility_id,
+        room_id: pair.room_id,
+      });
+    });
+
+    res.status(201).json({ result: "Room added successfully" });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const putRoom = (req: Request, res: Response, next: NextFunction) => {
-  console.log("Update a single Room");
+export const putRoom = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // TODO: GET THE CURRENT ROOM FACILITIES AND UPDATE THEM BASED ON UESR INPUT
+  const room: IRooms | {} = await dbQuery("SELECT * FROM rooms WHERE id = ?;", [
+    parseInt(req.params.roomId),
+  ]);
+
+  // Creating the new room from the request data and updating the room with the correct ID with the new room
+  const editedRoom: IRooms[] | {} = {
+    room_number: req.body.room_number,
+    photo: req.body.photo,
+    photoTwo: req.body.photoTwo,
+    photoThree: req.body.photoThree,
+    photoFour: req.body.photoFour,
+    photoFive: req.body.photoFive,
+    description: req.body.description,
+    discountPercent: req.body.discountPercent,
+    discount: req.body.discount,
+    cancellationPolicy: req.body.cancellationPolicy,
+    bed_type: req.body.bed_type,
+    room_rate: req.body.room_rate,
+    room_offer: req.body.room_offer,
+    room_status: req.body.room_status,
+  };
+  try {
+    await dbQuery("UPDATE rooms SET ? WHERE id = ?", [
+      editedRoom,
+      parseInt(req.params.roomId),
+    ]);
+    res.status(202).json({ result: "Room edited successfully" });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const deleteRoom = async (

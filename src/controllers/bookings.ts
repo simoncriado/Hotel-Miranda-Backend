@@ -57,11 +57,13 @@ export const getBooking = async (
   res: Response,
   next: NextFunction
 ) => {
+  // Getting the right booking
   const bookingQuery: IBooking[] | {} = await dbQuery(
     "SELECT * FROM bookings WHERE id = ?;",
     [parseInt(req.params.bookingId)]
   );
   const parsedBooking: IBooking[] = JSON.parse(JSON.stringify(bookingQuery));
+  // Finding the room that is associated to that booking. Extracting the photos and facilities and adding them to the booking
   const associatedRoom: IRooms | {} = await dbQuery(
     "SELECT * FROM rooms WHERE id = ?;",
     parsedBooking[0].roomID
@@ -101,17 +103,18 @@ export const postBooking = async (
   next: NextFunction
 ) => {
   // Getting all rooms where the bed type is equal to the bed type the user selected. Then picking a random room from that array
+  // Here I would check for bedType, availability between checkin and checkout
   const rooms: IRooms | {} = await dbQuery(
     "SELECT * FROM rooms WHERE bed_type = ?;",
-    req.body.bed_type
+    req.body.roomType
   );
   const roomsArray: IRooms[] = JSON.parse(JSON.stringify(rooms));
   const randomRoom: IRooms = faker.helpers.arrayElement(roomsArray);
 
+  // Creating the new booking from the request data
   const newBooking = {
-    ...req.body,
     bookingID: faker.datatype.number({ min: 1, max: 999999 }),
-    // GOAL IS TO GET TODAYS DATE... NOT SURE IF THIS IS WORKING
+    ...req.body,
     orderDate: faker.date.between("", ""),
     roomID: randomRoom.id,
     roomType: randomRoom.bed_type,
@@ -133,19 +136,19 @@ export const putBooking = async (
   res: Response,
   next: NextFunction
 ) => {
-  const bookingQuery: IBooking[] | {} = await dbQuery(
-    "SELECT * FROM bookings WHERE id = ?;",
-    [parseInt(req.params.bookingId)]
-  );
-  const parsedBooking: IBooking[] = JSON.parse(JSON.stringify(bookingQuery));
+  // Creating the new booking from the request data and updating the booking with the correct ID with the new booking
   const editedBooking: IBooking[] | {} = {
-    ...parsedBooking,
+    bookingID: req.body.bookingID,
     userName: req.body.userName,
     userPicture: req.body.userPicture,
+    orderDate: req.body.orderDate,
     checkIn: req.body.checkIn,
     checkOut: req.body.checkOut,
     specialRequest: req.body.specialRequest,
-    bed_type: req.body.bed_type,
+    roomID: req.body.roomID,
+    roomType: req.body.roomType,
+    roomNumber: req.body.roomNumber,
+    roomRate: req.body.roomRate,
     status: req.body.status,
   };
   try {
@@ -165,7 +168,7 @@ export const deleteBooking = async (
   next: NextFunction
 ) => {
   try {
-    await dbQuery("DELETE * FROM bookings WHERE id = ?;", [
+    await dbQuery("DELETE FROM bookings WHERE id = ?;", [
       parseInt(req.params.bookingId),
     ]);
     res.status(200).json({ result: "Booking deleted successfully" });
