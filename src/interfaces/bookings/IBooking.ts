@@ -9,4 +9,7 @@ export interface IBooking {
   specialRequest: string;
   roomType: string;
   status: string;
+  roomID: string;
+  roomNumber: number;
+  roomRate: number;
 }
