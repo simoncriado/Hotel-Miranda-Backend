@@ -16,6 +16,8 @@ const bookingSchema = new Schema<IBooking>({
   roomID: String,
   roomNumber: Number,
   roomRate: Number,
+  roomPhotos: Array,
+  roomFacilities: Array,
 });
 
 export const Booking = mongoose.model("booking", bookingSchema);

@@ -1,22 +1,32 @@
 import { faker } from "@faker-js/faker";
 import { connect, disconnect } from "./db/connection";
-import { Room, Booking } from "./schemas/index";
+import bcrypt from "bcrypt";
+import { Room, Booking, User, Review } from "./schemas/index";
 
-import { IRooms, IBooking } from "./interfaces/index";
+import { IRooms, IBooking, IUser, IReviews } from "./interfaces/index";
 
 run();
 
 async function run() {
   await connect();
 
+  // Emptying the collections at every execution. Just for testing purposes so that I do not get to many rooms, bookings etc
+  await Room.deleteMany();
+  await Booking.deleteMany();
+  await User.deleteMany();
+  await Review.deleteMany();
+
   await insertRooms(20);
   await insertBookings(20);
+  await insertUsers(20);
+  await insertReviews(20);
 
   await disconnect();
 }
 
 // ROOMS RELATED CODE
 async function insertRooms(number: number): Promise<void> {
+  // await Room.deleteMany()
   for (let i = 0; i < number; i++) {
     const room: IRooms = await generateRandomRoom();
 
@@ -100,6 +110,7 @@ async function generateRandomRoom(): Promise<IRooms> {
 
 // BOOKINGS RELATED CODE
 async function insertBookings(number: number): Promise<void> {
+  //   await Booking.deleteMany();
   for (let i = 0; i < number; i++) {
     const booking: IBooking = await generateRandomBooking();
 
@@ -119,6 +130,14 @@ async function generateRandomBooking(): Promise<IBooking> {
   const randomNumber: number = Math.floor(Math.random() * 20);
   const randomRoom: IRooms = rooms[randomNumber];
 
+  const randomRoomPhotosArray = [
+    randomRoom.photo,
+    randomRoom.photoTwo,
+    randomRoom.photoThree,
+    randomRoom.photoFour,
+    randomRoom.photoFive,
+  ];
+
   return await new Booking({
     bookingID: faker.datatype.number({ min: 1, max: 99999 }),
     userName: faker.name.fullName(),
@@ -137,10 +156,74 @@ async function generateRandomBooking(): Promise<IBooking> {
     roomType: randomRoom.bed_type,
     roomNumber: randomRoom.room_number,
     roomRate: randomRoom.room_rate,
+    roomPhotos: randomRoomPhotosArray,
+    roomFacilities: randomRoom.room_facilities,
     status: faker.helpers.arrayElement([
       "Check In",
       "Check Out",
       "In Progress",
     ]),
+  });
+}
+
+// USERS RELATED CODE
+async function insertUsers(number: number): Promise<void> {
+  for (let i = 0; i < number; i++) {
+    const user: IUser = await generateRandomUser();
+
+    await User.create(user);
+  }
+}
+
+async function generateRandomUser(): Promise<IUser> {
+  const userPictures: string[] = [
+    "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8cG9ydHJhaXR8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60",
+    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cG9ydHJhaXR8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60",
+    "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8cG9ydHJhaXR8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60",
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fHBvcnRyYWl0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
+    "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fHBvcnRyYWl0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
+    "https://images.unsplash.com/photo-1504257432389-52343af06ae3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTd8fHBvcnRyYWl0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
+    "https://images.unsplash.com/photo-1528892952291-009c663ce843?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MzB8fHBvcnRyYWl0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
+  ];
+
+  return await new User({
+    photo: faker.helpers.arrayElement(userPictures),
+    name: faker.name.fullName(),
+    position: faker.helpers.arrayElement([
+      "Room Service",
+      "Manager",
+      "Reception",
+    ]),
+    email: faker.internet.email(),
+    phone: faker.phone.number("+## ## ### ## ##"),
+    date: faker.date.between("2022-01-01", "2023-12-12"),
+    description: faker.lorem.lines(4),
+    state: faker.helpers.arrayElement(["ACTIVE", "INACTIVE"]),
+    pass: await getHashPass(faker.internet.password()),
+  });
+}
+
+async function getHashPass(pass: string): Promise<string> {
+  return await bcrypt.hash(pass, 10).then((result) => result);
+}
+
+// REVIEWS RELATED CODE
+async function insertReviews(number: number): Promise<void> {
+  for (let i = 0; i < number; i++) {
+    const review: IReviews = await generateRandomReview();
+
+    await Review.create(review);
+  }
+}
+
+async function generateRandomReview(): Promise<IReviews> {
+  return await new Review({
+    date: faker.date.between("2022-01-01", "2023-12-12"),
+    name: faker.name.fullName(),
+    email: faker.internet.email(),
+    phone: faker.phone.number("+## ## ### ## ##"),
+    comment: faker.random.words(30),
+    stars: faker.datatype.number({ min: 0, max: 5 }),
+    archived: faker.datatype.boolean(),
   });
 }

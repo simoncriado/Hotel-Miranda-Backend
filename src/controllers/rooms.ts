@@ -41,6 +41,7 @@ export const postRoom = async (
   next: NextFunction
 ) => {
   await connect();
+  console.log(req.body);
 
   const newRoom: IRooms[] | {} = {
     room_number: req.body.room_number,
@@ -64,7 +65,6 @@ export const postRoom = async (
 
   res.json({
     message: "Room created successfully",
-    newroom: req.body.room,
   });
 
   await disconnect();
@@ -96,7 +96,7 @@ export const putRoom = async (
   };
 
   const room: IRooms = await Room.findOneAndUpdate(
-    { _id: req.params.idroom },
+    { _id: req.params.roomId },
     editedRoom
   )
     .exec()
