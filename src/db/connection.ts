@@ -1,7 +1,13 @@
 import mongoose from "mongoose";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 export async function connect() {
-  await mongoose.connect("mongodb://simon:simon@localhost:27017/hotelmiranda");
+  try {
+    await mongoose.connect(process.env.MONGO_URL);
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 export async function disconnect() {
