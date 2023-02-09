@@ -14,7 +14,14 @@ export const getRooms = async (
     .exec()
     .catch((e) => next(e));
 
-  res.json(rooms);
+  try {
+    if (rooms.length === 0) {
+      return res.status(400).json({ result: "Error fetching the rooms" });
+    }
+    res.status(200).json(rooms);
+  } catch (error) {
+    next(error);
+  }
 
   await disconnect();
 };
@@ -30,7 +37,14 @@ export const getRoom = async (
     .exec()
     .catch((e) => next(e));
 
-  res.json(room);
+  try {
+    if (room === null) {
+      return res.status(400).json({ result: "Error fetching the single room" });
+    }
+    res.status(200).json(room);
+  } catch (error) {
+    next(error);
+  }
 
   await disconnect();
 };
@@ -41,7 +55,6 @@ export const postRoom = async (
   next: NextFunction
 ) => {
   await connect();
-  console.log(req.body);
 
   const newRoom: IRooms[] | {} = {
     room_number: req.body.room_number,
@@ -63,7 +76,7 @@ export const postRoom = async (
 
   await Room.create(newRoom).catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "Room created successfully",
   });
 
@@ -102,7 +115,7 @@ export const putRoom = async (
     .exec()
     .catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "Room edited successfully",
     oldroom: room,
     newroom: req.body.room,
@@ -121,7 +134,7 @@ export const deleteRoom = async (
     .exec()
     .catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "Room deleted successfully",
     oldroom: room,
   });

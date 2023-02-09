@@ -15,7 +15,14 @@ export const getUsers = async (
     .exec()
     .catch((e: Error) => next(e));
 
-  res.json(users);
+  try {
+    if (users.length === 0) {
+      return res.status(400).json({ result: "Error fetching the users" });
+    }
+    res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
 
   await disconnect();
 };
@@ -31,7 +38,14 @@ export const getUser = async (
     .exec()
     .catch((e: Error) => next(e));
 
-  res.json(user);
+  try {
+    if (user === null) {
+      return res.status(400).json({ result: "Error fetching the single user" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
 
   await disconnect();
 };
@@ -61,7 +75,7 @@ export const postUser = async (
 
   await User.create(newUser).catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "User created successfully",
   });
 
@@ -98,7 +112,7 @@ export const putUser = async (
     .exec()
     .catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "User edited successfully",
     olduser: user,
     newuser: req.body.user,
@@ -125,7 +139,7 @@ export const deleteUser = async (
     .exec()
     .catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "User deleted successfully",
     olduser: user,
   });

@@ -14,7 +14,14 @@ export const getBookings = async (
     .exec()
     .catch((e) => next(e));
 
-  res.json(bookings);
+  try {
+    if (bookings.length === 0) {
+      return res.status(400).json({ result: "Error fetching the bookings" });
+    }
+    res.status(200).json(bookings);
+  } catch (error) {
+    next(error);
+  }
 
   await disconnect();
 };
@@ -30,7 +37,16 @@ export const getBooking = async (
     .exec()
     .catch((e: Error) => next(e));
 
-  res.json(booking);
+  try {
+    if (booking === null) {
+      return res
+        .status(400)
+        .json({ result: "Error fetching the single booking" });
+    }
+    res.status(200).json(booking);
+  } catch (error) {
+    next(error);
+  }
 
   await disconnect();
 };
@@ -76,7 +92,7 @@ export const postBooking = async (
 
   await Booking.create(newBooking).catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "Booking created successfully",
   });
 
@@ -129,7 +145,7 @@ export const putBooking = async (
     .exec()
     .catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "Booking edited successfully",
     oldbooking: booking,
     newbooking: req.body.booking,
@@ -144,13 +160,14 @@ export const deleteBooking = async (
   next: NextFunction
 ) => {
   await connect();
+
   const booking: IBooking = await Booking.findOneAndDelete({
     _id: req.params.bookingId,
   })
     .exec()
     .catch((e) => next(e));
 
-  res.json({
+  res.status(200).json({
     message: "Booking deleted successfully",
     oldbooking: booking,
   });

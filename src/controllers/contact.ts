@@ -14,7 +14,14 @@ export const getContacts = async (
     .exec()
     .catch((e: Error) => next(e));
 
-  res.json(reviews);
+  try {
+    if (reviews.length === 0) {
+      return res.status(400).json({ result: "Error fetching the reviews" });
+    }
+    res.status(200).json(reviews);
+  } catch (error) {
+    next(error);
+  }
 
   await disconnect();
 };

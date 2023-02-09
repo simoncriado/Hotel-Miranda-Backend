@@ -11,10 +11,10 @@ async function run() {
   await connect();
 
   // Emptying the collections at every execution. Just for testing purposes so that I do not get to many rooms, bookings etc
-  await Room.deleteMany();
-  await Booking.deleteMany();
-  await User.deleteMany();
-  await Review.deleteMany();
+  //   await Room.deleteMany();
+  //   await Booking.deleteMany();
+  //   await User.deleteMany();
+  //   await Review.deleteMany();
 
   await insertRooms(20);
   await insertBookings(20);
