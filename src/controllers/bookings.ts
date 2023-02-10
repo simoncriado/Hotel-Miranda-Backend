@@ -8,6 +8,7 @@ export const getBookings = async (
   res: Response,
   next: NextFunction
 ) => {
+  // REMOVE ALL CONNECTS AND DISCONNECTS AND ONLY INCLUDE IT ONCE IN THE APP.TS
   await connect();
 
   const bookings: IBooking[] = await Booking.find()

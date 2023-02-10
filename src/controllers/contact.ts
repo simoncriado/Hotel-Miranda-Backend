@@ -3,6 +3,8 @@ import { connect, disconnect } from "../db/connection";
 import { Review } from "../schemas/index";
 import { IReviews } from "../interfaces/index";
 
+// FOLLOW THE CRUD PATTERN. ADD GET ONE, EDIT, CREATE AND DELETE
+
 export const getContacts = async (
   req: Request,
   res: Response,

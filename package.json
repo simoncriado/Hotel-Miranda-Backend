@@ -9,7 +9,8 @@
     "nodemon": "nodemon src/app.ts",
     "tsc": "tsc",
     "dev": "ts-node-dev src/app.ts",
-    "test": "jest"
+    "test": "jest --forceExit --detectOpenHandles --maxWorkers=1",
+    "jest": "jest"
   },
   "keywords": [],
   "author": "",

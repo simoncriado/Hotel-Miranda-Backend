@@ -44,6 +44,8 @@ app.use(
 );
 
 app.listen(3000, () => {
+  // CREATE GITHUB ISSUES
+  // NO CLG ON FINAL VERSIONS
   console.log("Server started.");
 });
 

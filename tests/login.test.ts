@@ -7,6 +7,7 @@ describe("Login test", (): void => {
       email: "test@test.com",
       password: "12345",
     });
+
     expect(response.statusCode).toBe(200);
   });
 
