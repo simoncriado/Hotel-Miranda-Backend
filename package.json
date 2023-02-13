@@ -9,7 +9,7 @@
     "nodemon": "nodemon src/app.ts",
     "tsc": "tsc",
     "dev": "ts-node-dev src/app.ts",
-    "test": "jest --forceExit --detectOpenHandles --maxWorkers=1",
+    "test": "set PORT=0&&jest --watchAll --verbose",
     "jest": "jest"
   },
   "keywords": [],

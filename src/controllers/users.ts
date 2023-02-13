@@ -63,7 +63,7 @@ export const postUser = async (
 
   const newUser: IUser[] | {} = {
     photo: req.body.photo,
-    name: req.body.photo,
+    name: req.body.name,
     position: req.body.position,
     email: req.body.email,
     phone: req.body.phone,
@@ -95,7 +95,7 @@ export const putUser = async (
 
   const editedUser: IUser[] | {} = {
     photo: req.body.photo,
-    name: req.body.photo,
+    name: req.body.name,
     position: req.body.position,
     email: req.body.email,
     phone: req.body.phone,
@@ -135,6 +135,7 @@ export const deleteUser = async (
   next: NextFunction
 ) => {
   await connect();
+
   const user: IUser = await User.findOneAndDelete({ _id: req.params.id })
     .exec()
     .catch((e) => next(e));

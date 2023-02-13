@@ -43,9 +43,7 @@ app.use(
   contactRouter
 );
 
-app.listen(3000, () => {
-  // CREATE GITHUB ISSUES
-  // NO CLG ON FINAL VERSIONS
+app.listen(0, () => {
   console.log("Server started.");
 });
 
