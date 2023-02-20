@@ -91,7 +91,10 @@ export const postRoom = async (
     })
   );
 
+  const roomID = Math.floor(Math.random() * 10000000);
+
   const newRoom: IRooms[] | {} = {
+    roomID: roomID,
     room_number: req.body.room_number,
     photo: req.body.photo,
     photoTwo: req.body.photoTwo,
@@ -136,6 +139,7 @@ export const putRoom = async (
 
   // Creating the new room from the request data and updating the room with the correct ID with the new room
   const editedRoom: IRooms[] | {} = {
+    roomID: req.body.roomID,
     room_number: req.body.room_number,
     photo: req.body.photo,
     photoTwo: req.body.photoTwo,
@@ -168,7 +172,7 @@ export const deleteRoom = async (
   next: NextFunction
 ) => {
   try {
-    await dbQuery("DELETE * FROM rooms WHERE id = ?;", [
+    await dbQuery("DELETE FROM rooms WHERE id = ?;", [
       parseInt(req.params.roomId),
     ]);
     res.status(200).json({ result: "Room deleted successfully" });

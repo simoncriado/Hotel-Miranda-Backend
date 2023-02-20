@@ -11,4 +11,5 @@ export interface IBooking {
   roomNumber: number;
   roomRate: number;
   status: string;
+  roomDescription: string;
 }

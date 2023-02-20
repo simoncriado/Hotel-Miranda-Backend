@@ -15,12 +15,14 @@ roomID INT NOT NULL,
 roomType VARCHAR(50) NOT NULL, 
 roomNumber SMALLINT NOT NULL,
 roomRate INT NOT NULL,
+roomDescription VARCHAR(500),
 status varchar(45) NOT NULL, 
 PRIMARY KEY (id));
 
 -- Create table rooms
 CREATE TABLE rooms (
 id INT NOT NULL AUTO_INCREMENT,
+roomID INT NOT NULL,
 room_number SMALLINT NOT NULL,
 photo VARCHAR(500) NOT NULL,
 photoTwo VARCHAR(500), 
@@ -40,6 +42,7 @@ PRIMARY KEY (id));
 -- Create table users
 CREATE TABLE users (
 id INT NOT NULL AUTO_INCREMENT, 
+userID INT NOT NULL,
 photo VARCHAR(500) NOT NULL, 
 name VARCHAR(255) NOT NULL, 
 position VARCHAR(50) NOT NULL, 
@@ -70,6 +73,7 @@ CREATE TABLE room_facilities_rel (
 -- Create table reviews
 CREATE TABLE reviews (
 id INT NOT NULL AUTO_INCREMENT, 
+reviewID INT NOT NULL,
 date VARCHAR(100) NOT NULL, 
 name VARCHAR(255) NOT NULL, 
 email VARCHAR(255) NOT NULL, 

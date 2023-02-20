@@ -47,7 +47,11 @@ export const postUser = async (
   const hashedPass: string = await bcrypt
     .hash(req.body.pass, 10)
     .then((result) => result);
+
+  const userID = Math.floor(Math.random() * 10000000);
+
   const newUser: IUser[] | {} = {
+    userID: userID,
     photo: req.body.photo,
     name: req.body.photo,
     position: req.body.position,

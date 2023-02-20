@@ -9,6 +9,7 @@ type comment = {
 };
 
 export interface IReviews {
+  reviewID: number;
   id: number;
   date: Date;
   name: string;

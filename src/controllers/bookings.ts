@@ -111,9 +111,11 @@ export const postBooking = async (
   const roomsArray: IRooms[] = JSON.parse(JSON.stringify(rooms));
   const randomRoom: IRooms = faker.helpers.arrayElement(roomsArray);
 
+  const bookingID = Math.floor(Math.random() * 10000000);
+
   // Creating the new booking from the request data
   const newBooking = {
-    bookingID: faker.datatype.number({ min: 1, max: 999999 }),
+    bookingID: bookingID,
     ...req.body,
     orderDate: faker.date.between("", ""),
     roomID: randomRoom.id,
