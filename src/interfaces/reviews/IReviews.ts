@@ -1,5 +1,6 @@
 export interface IReviews {
   id: number;
+  reviewID: number;
   date: Date;
   name: string;
   email: string;

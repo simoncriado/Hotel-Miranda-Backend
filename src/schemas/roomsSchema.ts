@@ -4,6 +4,7 @@ import { IRooms } from "../interfaces/index";
 const { Schema } = mongoose;
 
 const roomSchema = new Schema<IRooms>({
+  roomID: Number,
   room_number: { type: Number, required: true },
   photo: String,
   photoTwo: String,

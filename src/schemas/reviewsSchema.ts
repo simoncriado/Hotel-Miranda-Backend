@@ -4,6 +4,7 @@ import { IReviews } from "../interfaces";
 const { Schema } = mongoose;
 
 const reviewsSchema = new Schema<IReviews>({
+  reviewID: Number,
   date: String,
   name: String,
   email: String,

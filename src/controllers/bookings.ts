@@ -8,7 +8,6 @@ export const getBookings = async (
   res: Response,
   next: NextFunction
 ) => {
-  // REMOVE ALL CONNECTS AND DISCONNECTS AND ONLY INCLUDE IT ONCE IN THE APP.TS
   await connect();
 
   const bookings: IBooking[] = await Booking.find()
@@ -34,7 +33,9 @@ export const getBooking = async (
 ) => {
   await connect();
 
-  const booking = await Booking.findOne({ _id: req.params.bookingId })
+  const booking = await Booking.findOne({
+    bookingID: Number(req.params.bookingId),
+  })
     .exec()
     .catch((e: Error) => next(e));
 
@@ -73,9 +74,10 @@ export const postBooking = async (
     randomRoom.photoFour,
     randomRoom.photoFive,
   ];
+  const bookingID = Math.floor(Math.random() * 10000000);
 
   const newBooking: IBooking[] | {} = {
-    bookingID: req.body.bookingID,
+    bookingID: bookingID,
     userName: req.body.userName,
     userPicture: req.body.userPicture,
     orderDate: req.body.orderDate,
@@ -94,6 +96,7 @@ export const postBooking = async (
   await Booking.create(newBooking).catch((e) => next(e));
 
   res.status(200).json({
+    newbooking: newBooking,
     message: "Booking created successfully",
   });
 
@@ -140,7 +143,7 @@ export const putBooking = async (
   };
 
   const booking: IBooking = await Booking.findOneAndUpdate(
-    { _id: req.params.bookingId },
+    { bookingID: Number(req.params.bookingId) },
     editedBooking
   )
     .exec()
@@ -149,7 +152,7 @@ export const putBooking = async (
   res.status(200).json({
     message: "Booking edited successfully",
     oldbooking: booking,
-    newbooking: req.body.booking,
+    newbooking: editedBooking,
   });
 
   await disconnect();
@@ -163,7 +166,7 @@ export const deleteBooking = async (
   await connect();
 
   const booking: IBooking = await Booking.findOneAndDelete({
-    _id: req.params.bookingId,
+    bookingID: Number(req.params.bookingId),
   })
     .exec()
     .catch((e) => next(e));

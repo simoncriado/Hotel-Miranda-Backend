@@ -33,7 +33,9 @@ export const getReview = async (
 ) => {
   await connect();
 
-  const review: IReviews = await Review.findOne({ _id: req.params.id })
+  const review: IReviews = await Review.findOne({
+    reviewID: Number(req.params.id),
+  })
     .exec()
     .catch((e: Error) => next(e));
 
@@ -58,7 +60,10 @@ export const postReview = async (
 ) => {
   await connect();
 
+  const reviewID = Math.floor(Math.random() * 10000000);
+
   const newReview: IReviews[] | {} = {
+    reviewID: reviewID,
     date: req.body.date,
     photo: req.body.photo,
     name: req.body.name,
@@ -72,6 +77,7 @@ export const postReview = async (
   await Review.create(newReview).catch((e) => next(e));
 
   res.status(200).json({
+    newreview: newReview,
     message: "Review created successfully",
   });
 
@@ -86,6 +92,7 @@ export const putReview = async (
   await connect();
 
   const editedReview: IReviews[] | {} = {
+    reviewID: req.body.reviewID,
     date: req.body.date,
     photo: req.body.photo,
     name: req.body.name,
@@ -97,7 +104,7 @@ export const putReview = async (
   };
 
   const review: IReviews = await Review.findOneAndUpdate(
-    { _id: req.params.id },
+    { reviewID: Number(req.params.id) },
     editedReview
   )
     .exec()
@@ -106,7 +113,7 @@ export const putReview = async (
   res.status(200).json({
     message: "Review edited successfully",
     oldreview: review,
-    newreview: req.body.review,
+    newreview: editedReview,
   });
 
   await disconnect();
@@ -119,7 +126,9 @@ export const deleteReview = async (
 ) => {
   await connect();
 
-  const review: IReviews = await Review.findOneAndDelete({ _id: req.params.id })
+  const review: IReviews = await Review.findOneAndDelete({
+    reviewID: Number(req.params.id),
+  })
     .exec()
     .catch((e) => next(e));
 

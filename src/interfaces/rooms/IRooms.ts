@@ -1,5 +1,6 @@
 export interface IRooms {
   id: number;
+  roomID: number;
   room_number: number;
   photo: string;
   photoTwo: string;

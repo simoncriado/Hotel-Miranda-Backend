@@ -4,6 +4,7 @@ import { IUser } from "../interfaces";
 const { Schema } = mongoose;
 
 const userSchema = new Schema<IUser>({
+  userID: Number,
   photo: String,
   name: { type: String, required: true },
   position: String,

@@ -34,7 +34,7 @@ export const getUser = async (
 ) => {
   await connect();
 
-  const user: IUser = await User.findOne({ _id: req.params.id })
+  const user: IUser = await User.findOne({ userID: Number(req.params.id) })
     .exec()
     .catch((e: Error) => next(e));
 
@@ -61,7 +61,10 @@ export const postUser = async (
     .hash(req.body.pass, 10)
     .then((result) => result);
 
+  const userID = Math.floor(Math.random() * 10000000);
+
   const newUser: IUser[] | {} = {
+    userID: userID,
     photo: req.body.photo,
     name: req.body.name,
     position: req.body.position,
@@ -76,6 +79,7 @@ export const postUser = async (
   await User.create(newUser).catch((e) => next(e));
 
   res.status(200).json({
+    newuser: newUser,
     message: "User created successfully",
   });
 
@@ -94,6 +98,7 @@ export const putUser = async (
     .then((result) => result);
 
   const editedUser: IUser[] | {} = {
+    userID: req.body.userID,
     photo: req.body.photo,
     name: req.body.name,
     position: req.body.position,
@@ -106,7 +111,7 @@ export const putUser = async (
   };
 
   const user: IUser = await User.findOneAndUpdate(
-    { _id: req.params.id },
+    { userID: Number(req.params.id) },
     editedUser
   )
     .exec()
@@ -115,7 +120,7 @@ export const putUser = async (
   res.status(200).json({
     message: "User edited successfully",
     olduser: user,
-    newuser: req.body.user,
+    newuser: editedUser,
   });
 
   await disconnect();
@@ -136,7 +141,9 @@ export const deleteUser = async (
 ) => {
   await connect();
 
-  const user: IUser = await User.findOneAndDelete({ _id: req.params.id })
+  const user: IUser = await User.findOneAndDelete({
+    userID: Number(req.params.id),
+  })
     .exec()
     .catch((e) => next(e));
 

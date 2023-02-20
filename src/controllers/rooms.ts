@@ -33,7 +33,7 @@ export const getRoom = async (
 ) => {
   await connect();
 
-  const room: IRooms = await Room.findOne({ _id: req.params.roomId })
+  const room: IRooms = await Room.findOne({ roomID: Number(req.params.roomId) })
     .exec()
     .catch((e) => next(e));
 
@@ -56,7 +56,22 @@ export const postRoom = async (
 ) => {
   await connect();
 
+  let offer = 0;
+  if (req.body.discount === "Yes") {
+    offer =
+      req.body.room_rate -
+      (req.body.discountPercent * req.body.room_rate) / 100;
+  }
+
+  const roomID = Math.floor(Math.random() * 10000000);
+
+  let discountPercent: number = 0;
+  if (req.body.discountPercent) {
+    discountPercent = req.body.discountPercent;
+  }
+
   const newRoom: IRooms[] | {} = {
+    roomID: roomID,
     room_number: req.body.room_number,
     photo: req.body.photo,
     photoTwo: req.body.photoTwo,
@@ -64,12 +79,12 @@ export const postRoom = async (
     photoFour: req.body.photoFour,
     photoFive: req.body.photoFive,
     description: req.body.description,
-    discountPercent: req.body.discountPercent,
+    discountPercent: discountPercent,
     discount: req.body.discount,
     cancellationPolicy: req.body.cancellationPolicy,
     bed_type: req.body.bed_type,
     room_rate: req.body.room_rate,
-    room_offer: req.body.room_offer,
+    room_offer: offer,
     room_status: req.body.room_status,
     room_facilities: req.body.room_facilities,
   };
@@ -77,6 +92,7 @@ export const postRoom = async (
   await Room.create(newRoom).catch((e) => next(e));
 
   res.status(200).json({
+    newroom: newRoom,
     message: "Room created successfully",
   });
 
@@ -89,6 +105,13 @@ export const putRoom = async (
   next: NextFunction
 ) => {
   await connect();
+
+  let offer = 0;
+  if (req.body.discount === "Yes") {
+    offer =
+      req.body.room_rate -
+      (req.body.discountPercent * req.body.room_rate) / 100;
+  }
 
   const editedRoom: IRooms[] | {} = {
     room_number: req.body.room_number,
@@ -103,13 +126,13 @@ export const putRoom = async (
     cancellationPolicy: req.body.cancellationPolicy,
     bed_type: req.body.bed_type,
     room_rate: req.body.room_rate,
-    room_offer: req.body.room_offer,
+    room_offer: offer,
     room_status: req.body.room_status,
     room_facilities: req.body.room_facilities,
   };
 
   const room: IRooms = await Room.findOneAndUpdate(
-    { _id: req.params.roomId },
+    { roomID: Number(req.params.roomId) },
     editedRoom
   )
     .exec()
@@ -118,7 +141,7 @@ export const putRoom = async (
   res.status(200).json({
     message: "Room edited successfully",
     oldroom: room,
-    newroom: req.body.room,
+    newroom: editedRoom,
   });
 
   await disconnect();
@@ -130,7 +153,9 @@ export const deleteRoom = async (
   next: NextFunction
 ) => {
   await connect();
-  const room: IRooms = await Room.findOneAndDelete({ _id: req.params.roomId })
+  const room: IRooms = await Room.findOneAndDelete({
+    roomID: Number(req.params.roomId),
+  })
     .exec()
     .catch((e) => next(e));
 

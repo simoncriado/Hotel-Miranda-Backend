@@ -14,4 +14,5 @@ export interface IBooking {
   roomRate: number;
   roomPhotos: string[];
   roomFacilities: string[];
+  roomDescription: string;
 }
